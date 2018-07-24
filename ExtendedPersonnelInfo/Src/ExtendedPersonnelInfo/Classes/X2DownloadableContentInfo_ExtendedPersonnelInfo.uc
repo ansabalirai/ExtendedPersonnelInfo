@@ -1,0 +1,1 @@
+class X2DownloadableContentInfo_ExtendedPersonnelInfo extends X2DownloadableContentInfo;

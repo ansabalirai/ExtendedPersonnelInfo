@@ -60,6 +60,8 @@ simulated function UpdateCurrentUnit (int Index)
 // Shows data based on CurrentUnit
 simulated function UpdateDisplay()
 {
+	local float YOffset;
+
 	// We remove the rendered info as either (a) don't need need it or (b) we are going to recreate it
 	if (InfoContainer != none) {
 		InfoContainer.Remove();
@@ -71,6 +73,7 @@ simulated function UpdateDisplay()
 		return;
 	}
 
+	YOffset = 0;
 	BGBox.Show();
 	InfoContainer = Spawn(class'UIPanel', self);
 	InfoContainer.bAnimateOnInit = false;
@@ -80,24 +83,56 @@ simulated function UpdateDisplay()
 	UnitNameText.bAnimateOnInit = false;
 	UnitNameText.InitText(name("UnitNameText"), CurrentUnit.GetName(eNameType_First) @ CurrentUnit.GetName(eNameType_Last));*/
 
-	// BOND STUFF
-	DoBonds();
+	DoHeadshot(YOffset);
+	DoBonds(YOffset);
 
 
 	// TODO
 }
 
-simulated function DoBonds ()
+simulated function DoHeadshot (out float YOffset)
+{
+	local XComGameState_CampaignSettings SettingsState;
+	local StateObjectReference UnitRef;
+	local Texture2D StaffPicture;
+	local float Margin, HeadshotSideLength;
+	local UIImage Image;
+
+	Margin = 5;
+	HeadshotSideLength = TargetWidth - (Margin * 2);
+
+	SettingsState = XComGameState_CampaignSettings(`XCOMHISTORY.GetSingleGameStateObjectForClass(class'XComGameState_CampaignSettings'));
+	UnitRef = CurrentUnit.GetReference();
+	StaffPicture = `XENGINE.m_kPhotoManager.GetHeadshotTexture(SettingsState.GameIndex, UnitRef.ObjectID, HeadshotSideLength, HeadshotSideLength);
+
+	if (StaffPicture != none) {
+		Image = Spawn(class'UIImage', InfoContainer);
+		Image.bAnimateOnInit = false;
+		Image.InitImage(name("Headshot"), class'UIUtilities_Image'.static.ValidateImagePath(PathName(StaffPicture)));
+		Image.SetPosition(Margin, YOffset + Margin);
+		Image.SetSize(HeadshotSideLength, HeadshotSideLength);
+	}
+
+	YOffset += HeadshotSideLength + (Margin * 2);
+}
+
+simulated function DoBonds (out float YOffset)
 {
 	local StateObjectReference BondmateRef;
 	local SoldierBond BondData;
+	local UIPanel BondsPanel;
+
+	BondsPanel = Spawn(class'UIPanel', InfoContainer);
+	BondsPanel.bAnimateOnInit = false;
+	BondsPanel.InitPanel(name("Bonds"));
+	BondsPanel.SetPosition(0, YOffset);
 
 	if (CurrentUnit.HasSoldierBond(BondmateRef, BondData)) {
-		DoBondmate(BondmateRef, BondData);
+		YOffset += DoBondmate(BondsPanel, BondmateRef, BondData);
 	}
 }
 
-simulated function DoBondmate(StateObjectReference BondmateRef, SoldierBond BondData)
+simulated function float DoBondmate(UIPanel Container, StateObjectReference BondmateRef, SoldierBond BondData)
 {
 	local XComGameState_Unit Bondmate;
 	local UIPanel DetailsUnderHeader;
@@ -110,21 +145,21 @@ simulated function DoBondmate(StateObjectReference BondmateRef, SoldierBond Bond
 
 	Bondmate = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(BondmateRef.ObjectID));
 
-	Header = Spawn(class'EPI_SectionHeader', InfoContainer);
+	Header = Spawn(class'EPI_SectionHeader', Container);
 	Header.InitSectionHeader("Bonded", TargetWidth, name("HasBondmateHeader"));
 
-	BondIcon = Spawn(class'UIBondIcon', InfoContainer);
+	BondIcon = Spawn(class'UIBondIcon', Container);
 	BondIcon.bAnimateOnInit = false;
 	BondIcon.bIsNavigable = false;
 	BondIcon.InitBondIcon(name("BondIcon"), BondData.BondLevel, , BondmateRef);
 	BondIcon.SetPosition(5, 5); // A bit of space between icon and border
 
-	BondLevelText = Spawn(class'UIText', InfoContainer);
+	BondLevelText = Spawn(class'UIText', Container);
 	BondLevelText.bAnimateOnInit = false;
 	BondLevelText.InitText(name("BondLevelText"), string(BondData.BondLevel), true);
 	BondLevelText.SetPosition(BondData.BondLevel == 1 ? 55 : 45, 70); // "1" is displayed as "I" and is barely visible on top of icon so we move it a bit to the right
 
-	DetailsUnderHeader = Spawn(class'UIPanel', InfoContainer);
+	DetailsUnderHeader = Spawn(class'UIPanel', Container);
 	DetailsUnderHeader.bAnimateOnInit = false;
 	DetailsUnderHeader.InitPanel(name("BondDetails"));
 	DetailsUnderHeader.SetPosition(BondIcon.X + BondIcon.Width + 5, 34);
@@ -157,6 +192,9 @@ simulated function DoBondmate(StateObjectReference BondmateRef, SoldierBond Bond
 		20,                          // Height
 		GetCohesionPercent(BondData) // Progress
 	);
+
+	// How high this section is plus a bit of margin
+	return BondIcon.Height + 10;
 }
 
 // Copied from UISoldierBondScreen::RefreshHeader

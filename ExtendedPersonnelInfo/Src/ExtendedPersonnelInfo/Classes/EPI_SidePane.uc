@@ -21,13 +21,17 @@ simulated function InitSidePane (float TargetX, float TargetY, optional name Ini
 
 simulated function DisplayFor (XComGameState_Unit Unit)
 {
+	local bool ShouldShow;
+
+	ShouldShow = Unit != none && !Unit.IsScientist() && !Unit.IsEngineer();
+
 	// We remove the rendered info as either (a) don't need need it or (b) we are going to recreate it
 	if (InfoContainer != none) {
 		InfoContainer.Remove();
 		InfoContainer = none;
 	}
 
-	if (Unit == none) {
+	if (!ShouldShow) {
 		BGBox.Hide();
 		return;
 	}

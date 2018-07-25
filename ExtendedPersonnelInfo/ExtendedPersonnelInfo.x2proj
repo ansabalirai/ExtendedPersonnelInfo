@@ -46,6 +46,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SidePane.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SubHeader.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities.uc">
       <SubType>Content</SubType>
     </Content>

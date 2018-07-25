@@ -10,6 +10,8 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 
 	if (Unit.HasSoldierBond(BondmateRef, BondData)) {
 		YOffset += DoBondmate(BondmateRef, BondData);
+	} else {
+		YOffset += DoNotBonded(Unit);
 	}
 }
 
@@ -61,7 +63,7 @@ simulated function float DoBondmate(StateObjectReference BondmateRef, SoldierBon
 
 	BondmateClassIcon = Spawn(class'UIImage', DetailsUnderHeader);
 	BondmateClassIcon.bAnimateOnInit = false;
-	BondmateClassIcon.InitImage(name("BondmateClassIcon"), Bondmate.GetSoldierClassIcon());
+	BondmateClassIcon.InitImage(name("BondmateClassIcon"), Bondmate.GetSoldierClassIcon()); // Dependency on highlander
 	BondmateClassIcon.SetPosition(DetailsWidth - 60, -12);
 
 	CohesionProgress = Spawn(class'UIProgressBar', DetailsUnderHeader);
@@ -77,6 +79,45 @@ simulated function float DoBondmate(StateObjectReference BondmateRef, SoldierBon
 
 	// How high this section is plus a bit of margin
 	return BondIcon.Height + 10;
+}
+
+simulated function float DoNotBonded(XComGameState_Unit Unit)
+{
+	local EPI_SectionHeader Header;
+	local EPI_SubHeader BestCompatibilityHeader;
+
+	Header = Spawn(class'EPI_SectionHeader', self);
+	Header.InitSectionHeader("Not bonded", OwningPane.TargetWidth, name("NotBondedHeader"));
+
+	BestCompatibilityHeader = Spawn(class'EPI_SubHeader', self);
+	BestCompatibilityHeader.InitSubHeader("Highest compatibility", OwningPane.TargetWidth, name("BestCompatibilityHeader"));
+	BestCompatibilityHeader.SetPosition(0, 34);
+
+
+
+	// TODO
+	return 0;
+}
+
+simulated function array<XComGameState_Unit> GetBondingCandidatesFor(XComGameState_Unit Unit)
+{
+	local array<StateObjectReference> Results;
+	local StateObjectReference CandidateRef;
+	local XComGameState_Unit Candidate;
+
+	foreach class'UIUtilities_Strategy'.static.GetXComHQ().Crew(CandidateRef) {
+		Candidate = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(CandidateRef));
+
+		if (CandidateRef.ObjectID == Unit.GetReference().ObjectID) continue; // Cannot bond with self
+		if (Candidate.IsDead()) continue; // Cannot bond with dead units
+		if (!Candidate.IsSoldier()) continue; // Only soldiers can bond
+		if (Candidate.HasSoldierBond()) continue; // Already bonded
+		// TODO: Compatibility != 0
+
+		Results.AddItem(Candidate);
+	}
+
+	return Results;
 }
 
 // Copied from UISoldierBondScreen::RefreshHeader

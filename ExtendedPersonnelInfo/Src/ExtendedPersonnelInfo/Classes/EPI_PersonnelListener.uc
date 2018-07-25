@@ -1,17 +1,16 @@
-class EPI_Personnel_Listener extends UIScreenListener;
+class EPI_PersonnelListener extends UIScreenListener;
 
 event OnInit(UIScreen Screen)
 {
 	local UIPersonnel Personnel;
-	local EPI_DetailsBox DetailsBox;
+	local EPI_Main Main;
 
 	Personnel = UIPersonnel(Screen);
 	if (Personnel == none) return;
 
-	DetailsBox = Personnel.Spawn(class'EPI_DetailsBox', Personnel);
-	
-	DetailsBox.Personnel = Personnel;
-	DetailsBox.InitDetailsBox();
+	Main = Personnel.Spawn(class'EPI_Main', Personnel);
+	Main.Personnel = Personnel;
+	Main.InitEPIMain();
 }
 
 defaultproperties

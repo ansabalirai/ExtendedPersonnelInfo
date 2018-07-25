@@ -22,13 +22,28 @@
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_DetailsBox.uc">
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_LeftPane.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Personnel_Listener.uc">
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Main.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_PersonnelListener.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SectionHeader.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Bonds.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Headshot.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SidePane.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities.uc">

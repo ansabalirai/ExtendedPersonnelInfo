@@ -52,6 +52,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities_BondCadidateSorting.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\X2DownloadableContentInfo_ExtendedPersonnelInfo.uc" />
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />

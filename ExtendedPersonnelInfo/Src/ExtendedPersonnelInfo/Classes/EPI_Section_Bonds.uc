@@ -1,5 +1,9 @@
 class EPI_Section_Bonds extends EPI_Section;
 
+// Config
+var int CandidatesToShow;
+var float CandidateMargin;
+
 simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 {
 	local StateObjectReference BondmateRef;
@@ -83,41 +87,143 @@ simulated function float DoBondmate(StateObjectReference BondmateRef, SoldierBon
 
 simulated function float DoNotBonded(XComGameState_Unit Unit)
 {
+	local array<XComGameState_Unit> BondCandidates;
+	local EPI_Utilities_BondCadidateSorting Sorting;
+	local float YOffset;
 	local EPI_SectionHeader Header;
-	local EPI_SubHeader BestCompatibilityHeader;
+	local EPI_SubHeader BestCompatibilityHeader, BestCohesionHeader;
+	local UIText NoBondCadidatesText;
+
+	BondCandidates = GetBondingCandidatesFor(Unit);
 
 	Header = Spawn(class'EPI_SectionHeader', self);
 	Header.InitSectionHeader("Not bonded", OwningPane.TargetWidth, name("NotBondedHeader"));
 
+	if (BondCandidates.Length == 0) {
+		NoBondCadidatesText = Spawn(class'UIText', self);
+		NoBondCadidatesText.bAnimateOnInit = false;
+		NoBondCadidatesText.InitText(name("NoBondCadidatesText"), "No candidates for bonding");
+		NoBondCadidatesText.SetPosition(5, 34);
+
+		return 55;
+	}
+
+	Sorting = new class'EPI_Utilities_BondCadidateSorting';
+	Sorting.CurrentUnit = Unit;
+
 	BestCompatibilityHeader = Spawn(class'EPI_SubHeader', self);
 	BestCompatibilityHeader.InitSubHeader("Highest compatibility", OwningPane.TargetWidth, name("BestCompatibilityHeader"));
-	BestCompatibilityHeader.SetPosition(0, 34);
+	BestCompatibilityHeader.SetPosition(5, 34);
 
+	YOffset = 65;
 
+	Sorting.SortByCompatibility(BondCandidates);
+	ShowTopCandidates(Unit, BondCandidates, YOffset);
 
-	// TODO
-	return 0;
+	YOffset += 10;
+
+	BestCohesionHeader = Spawn(class'EPI_SubHeader', self);
+	BestCohesionHeader.InitSubHeader("Highest cohesion", OwningPane.TargetWidth, name("BestCohesionHeader"));
+	BestCohesionHeader.SetPosition(5, YOffset);
+
+	YOffset += 30;
+
+	Sorting.SortByCohesion(BondCandidates);
+	ShowTopCandidates(Unit, BondCandidates, YOffset);
+
+	return YOffset + 5;
 }
 
 simulated function array<XComGameState_Unit> GetBondingCandidatesFor(XComGameState_Unit Unit)
 {
-	local array<StateObjectReference> Results;
+	local array<XComGameState_Unit> Results;
 	local StateObjectReference CandidateRef;
 	local XComGameState_Unit Candidate;
 
+	// For checking is already bonding
+	local StateObjectReference BondmateRef;
+	local SoldierBond BondData;
+
 	foreach class'UIUtilities_Strategy'.static.GetXComHQ().Crew(CandidateRef) {
-		Candidate = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(CandidateRef));
+		Candidate = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(CandidateRef.ObjectID));
 
 		if (CandidateRef.ObjectID == Unit.GetReference().ObjectID) continue; // Cannot bond with self
 		if (Candidate.IsDead()) continue; // Cannot bond with dead units
 		if (!Candidate.IsSoldier()) continue; // Only soldiers can bond
-		if (Candidate.HasSoldierBond()) continue; // Already bonded
-		// TODO: Compatibility != 0
+		if (Candidate.HasSoldierBond(BondmateRef, BondData)) continue; // Already bonded
+
+		// Compability != 0
+		Unit.GetBondData(CandidateRef, BondData);
+		if (BondData.Compatibility == 0) continue;
 
 		Results.AddItem(Candidate);
 	}
 
 	return Results;
+}
+
+simulated function ShowTopCandidates(XComGameState_Unit CurrentUnit, array<XComGameState_Unit> Candidates, out float YOffset)
+{
+	local int i;
+	local int MaxEntries;
+	local SoldierBond BondData;
+	local float BGWidth, ContentWidth, ContentMargin;
+	local UIPanel CandidatePanel;
+	local UIBGBox BGBox;
+	local UIText CandidateNameText, CompatibilityText;
+	local UIImage CandidateClassIcon;
+	local UIProgressBar CohesionProgress;
+
+	ContentMargin = 5;
+	BGWidth = OwningPane.TargetWidth - (CandidateMargin * 2);
+	ContentWidth = BGWidth - (ContentMargin * 2);
+	MaxEntries = Candidates.Length < CandidatesToShow ? Candidates.Length : CandidatesToShow;
+
+	for (i = 0; i < MaxEntries; i++) {
+		CurrentUnit.GetBondData(Candidates[i].GetReference(), BondData);
+
+		CandidatePanel = Spawn(class'UIPanel', self);
+		CandidatePanel.bAnimateOnInit = false;
+		CandidatePanel.InitPanel(); // No name so a unique one is generated
+		CandidatePanel.SetPosition(CandidateMargin, YOffset);
+
+		BGBox = Spawn(class'UIBGBox', CandidatePanel);
+		BGBox.bAnimateOnInit = false;
+		BGBox.InitBG(name("BG"));
+		BGBox.SetSize(BGWidth, 65);
+		BGBox.SetBGColor("gray");
+
+		CandidateNameText = Spawn(class'UIText', CandidatePanel);
+		CandidateNameText.bAnimateOnInit = false;
+		CandidateNameText.InitText(name("CandidateNameText"), Candidates[i].GetName(eNameType_RankFull));
+		CandidateNameText.SetPosition(ContentMargin, ContentMargin);
+		CandidateNameText.SetWidth(ContentWidth);
+
+		// We want compatibility and class icon to cover the progressbar in case something goes wrong, not the other way around
+		CohesionProgress = Spawn(class'UIProgressBar', CandidatePanel);
+		CohesionProgress.bAnimateOnInit = false;
+		CohesionProgress.InitProgressBar(
+			name("CohesionProgress"),
+			140, // X
+			35,  // Y
+			80,  // Width
+			20,   // Height
+			GetCohesionPercent(BondData) // Progress
+		);
+
+		CompatibilityText = Spawn(class'UIText', CandidatePanel);
+		CompatibilityText.bAnimateOnInit = false;
+		CompatibilityText.InitText(name("CompatibilityText"), class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel(BondData.Compatibility));
+		CompatibilityText.SetPosition(ContentMargin, 30);
+		CompatibilityText.SetWidth(ContentWidth);
+
+		CandidateClassIcon = Spawn(class'UIImage', CandidatePanel);
+		CandidateClassIcon.bAnimateOnInit = false;
+		CandidateClassIcon.InitImage(name("CandidateClassIcon"), Candidates[i].GetSoldierClassIcon()); // Dependency on highlander
+		CandidateClassIcon.SetPosition(ContentWidth - 55, 0);
+
+		YOffset += 70;
+	}
 }
 
 // Copied from UISoldierBondScreen::RefreshHeader
@@ -130,4 +236,10 @@ simulated function float GetCohesionPercent(SoldierBond BondData)
 	CohesionMax = float(CohesionThresholds[Clamp(BondData.BondLevel + 1, 0, CohesionThresholds.Length - 1)]);
 
 	return float(BondData.Cohesion) / CohesionMax;
+}
+
+defaultproperties
+{
+	CandidatesToShow = 3;
+	CandidateMargin = 5;
 }

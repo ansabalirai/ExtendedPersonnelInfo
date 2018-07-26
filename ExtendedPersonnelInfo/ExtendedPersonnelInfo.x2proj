@@ -46,6 +46,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Headshot.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc">
       <SubType>Content</SubType>
     </Content>

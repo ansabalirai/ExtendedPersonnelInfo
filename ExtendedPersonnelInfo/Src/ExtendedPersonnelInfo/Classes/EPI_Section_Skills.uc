@@ -19,12 +19,10 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local UIIcon PerkIcon;
 	local UIText PerkText;
 
-	InitPanel(name("Bonds"));
+	InitPanel(name("Skills"));
 	SetPosition(0, 0); // We use YOffset directly
 
 	GetAbilities(Unit, Abilities);
-
-	`log("Skills section");
 
 	Header = Spawn(class'EPI_SectionHeader', self);
 	Header.InitSectionHeader("Skills", OwningPane.TargetWidth, name("SkillsHeader"));

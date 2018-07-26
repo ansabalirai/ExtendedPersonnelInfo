@@ -13,6 +13,7 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local float ContainerMargin, ContainerWidth, ContentMargin, ContentWidth;
 	local EPI_SectionHeader Header;
 	local UIBGBox SlotBG;
+	local string strSlotType;
 	local EPI_SubHeader SlotHeader;
 	local UIText ItemText;
 
@@ -37,8 +38,12 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 		SlotBG.InitBG(, ContainerMargin, YOffset, ContainerWidth, 35 + (Slot.Items.Length * 25));
 		SlotBG.SetBGColor("gray");
 
+		// Leave only the first letter Capital-case, lowercase the rest
+		strSlotType = class'UIArmory_loadout'.default.m_strInventoryLabels[Slot.SlotType];
+		strSlotType = Left(strSlotType, 1) $ Locs(Right(strSlotType, Len(strSlotType) - 1));
+
 		SlotHeader = Spawn(class'EPI_SubHeader', self);
-		SlotHeader.InitSubHeader(class'UIArmory_loadout'.default.m_strInventoryLabels[Slot.SlotType], ContentWidth);
+		SlotHeader.InitSubHeader(strSlotType, ContentWidth);
 		SlotHeader.SetPosition(ContainerMargin + ContentMargin, YOffset);
 
 		YOffset += 30;

@@ -31,6 +31,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_PersonnelListener.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_RightPane.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section.uc">
       <SubType>Content</SubType>
     </Content>
@@ -41,6 +44,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Headshot.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SidePane.uc">

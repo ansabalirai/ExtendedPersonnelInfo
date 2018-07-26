@@ -52,7 +52,7 @@ simulated function CreateContentFor (XComGameState_Unit Unit)
 defaultproperties
 {
 	TargetWidth = 300;
-	TargetHeight = 880;
+	TargetHeight = 880; // Keep in sync with class'EPI_Utilities'.const.PersonnelHeight
 
 	bAnimateOnInit = false;
 }

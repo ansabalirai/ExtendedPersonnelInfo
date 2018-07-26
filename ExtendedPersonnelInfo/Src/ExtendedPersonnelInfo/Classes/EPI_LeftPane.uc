@@ -2,13 +2,11 @@ class EPI_LeftPane extends EPI_SidePane;
 
 simulated function InitLeftPane()
 {
-	local float PersonnelX;
-	local float PersonnelY;
-
-	PersonnelX = 480;
-	PersonnelY = 90;
-
-	InitSidePane(PersonnelX - TargetWidth - 10, PersonnelY, name("LeftPane"));
+	InitSidePane(
+		class'EPI_Utilities'.const.PersonnelX - TargetWidth - 10,
+		class'EPI_Utilities'.const.PersonnelY,
+		name("LeftPane")
+	);
 }
 
 simulated function CreateContentFor (XComGameState_Unit Unit)

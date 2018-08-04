@@ -10,15 +10,18 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local array<SlotData> Slots;
 	local SlotData Slot;
 	local XComGameState_Item Item;
+	local float CurrentYOffset, LeftYOffset, RightYOffset, RightXOffset;
 	local float ContainerMargin, ContainerWidth, ContentMargin, ContentWidth;
+	local bool IsRight;
 	local EPI_SectionHeader Header;
 	local UIBGBox SlotBG;
 	local string strSlotType;
 	local EPI_SubHeader SlotHeader;
-	local UIText ItemText;
+	local UIScrollingText ItemText;
 
 	ContainerMargin = 5;
-	ContainerWidth = OwningPane.TargetWidth - (ContainerMargin * 2);
+	RightXOffset = OwningPane.TargetWidth / 2;
+	ContainerWidth = RightXOffset - (ContainerMargin * 2);
 	ContentMargin = 5;
 	ContentWidth = ContainerWidth - (ContentMargin * 2);
 
@@ -27,16 +30,23 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	SetPosition(0, 0); // We use YOffset directly
 
 	Header = Spawn(class'EPI_SectionHeader', self);
-	Header.InitSectionHeader("Loadout", ContainerWidth, name("LoadoutHeader"));
+	Header.InitSectionHeader("Loadout", OwningPane.TargetWidth - (ContainerMargin * 2), name("LoadoutHeader"));
 	Header.SetPosition(ContainerMargin, YOffset);
 
 	YOffset += 40;
-
+	LeftYOffset = YOffset;
+	RightYOffset = YOffset;
+	
 	foreach Slots(Slot) {
+		// Decide which column this slots goes, but give priority to left one
+		IsRight = RightYOffset < LeftYOffset;
+		CurrentYOffset = IsRight ? RightYOffset : LeftYOffset;
+
 		SlotBG = Spawn(class'UIBGBox', self);
 		SlotBG.bAnimateOnInit = false;
-		SlotBG.InitBG(, ContainerMargin, YOffset, ContainerWidth, 35 + (Slot.Items.Length * 25));
+		SlotBG.InitBG(, ContainerMargin, CurrentYOffset, ContainerWidth, 35 + (Slot.Items.Length * 25));
 		SlotBG.SetBGColor("gray");
+		if (IsRight) SlotBG.SetX(SlotBG.X + RightXOffset);
 
 		// Leave only the first letter Capital-case, lowercase the rest
 		strSlotType = class'UIArmory_loadout'.default.m_strInventoryLabels[Slot.SlotType];
@@ -44,30 +54,43 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 
 		SlotHeader = Spawn(class'EPI_SubHeader', self);
 		SlotHeader.InitSubHeader(strSlotType, ContentWidth);
-		SlotHeader.SetPosition(ContainerMargin + ContentMargin, YOffset);
+		SlotHeader.SetPosition(ContainerMargin + ContentMargin, CurrentYOffset);
+		if (IsRight) SlotHeader.SetX(SlotHeader.X + RightXOffset);
 
-		YOffset += 30;
+		CurrentYOffset += 30;
 
 		foreach Slot.Items(Item) {
-			ItemText = Spawn(class'UIText', self);
+			ItemText = Spawn(class'UIScrollingText', self);
 			ItemText.bAnimateOnInit = false;
-			ItemText.InitText(, Item.GetMyTemplate().GetItemFriendlyName(Item.GetReference().ObjectID));
-			ItemText.SetPosition(ContainerMargin + ContentMargin, YOffset);
+			ItemText.InitScrollingText(, Item.GetMyTemplate().GetItemFriendlyName(Item.GetReference().ObjectID));
+			ItemText.SetPosition(ContainerMargin + ContentMargin, CurrentYOffset);
+			ItemText.SetWidth(ContentWidth);
+			if (IsRight) ItemText.SetX(ItemText.X + RightXOffset);
 
-			YOffset += 25;
+			CurrentYOffset += 25;
 		}
 
-		YOffset += 10;
+		CurrentYOffset += 10;
+
+		// "Submit" the Y offset changes
+		if (IsRight) RightYOffset = CurrentYOffset;
+		else LeftYOffset = CurrentYOffset;
 	}
+
+	// We use the bigger Y offset as the overall offset of whole section
+	YOffset = LeftYOffset > RightYOffset ? LeftYOffset : RightYOffset;
 }
 
 simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots)
 {
+	local array<EInventorySlot> SlotsToShow;
 	local CHUIItemSlotEnumerator En;
 	local EInventorySlot PrevSlotType;
 	local SlotData CurrentSlotData, EmptySlotData;
 
-	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit);
+	GetSlotsToShow(Unit, SlotsToShow);
+
+	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit,,,, SlotsToShow);
 	PrevSlotType = -1; // Enums start at 0 so this is guranteed not to match with anything
 
 	while (En.HasNext())
@@ -93,5 +116,20 @@ simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots
 	// Add the last slot
 	if (CurrentSlotData.Items.Length > 0) {
 		Slots.AddItem(CurrentSlotData);
+	}
+}
+
+simulated function GetSlotsToShow (XComGameState_Unit Unit, out array<EInventorySlot> SlotsToShow) 
+{
+	local array<CHItemSlot> ModSlots;
+	local CHItemSlot SlotTemplate;
+
+	SlotsToShow = class'CHItemSlot'.static.GetDefaultDisplayedSlots(Unit);
+	ModSlots = class'CHItemSlot'.static.GetAllSlotTemplates();
+
+	foreach ModSlots(SlotTemplate) {
+		if (SlotTemplate.UnitShowSlot(Unit)) {
+			SlotsToShow.Add(SlotTemplate.InvSlot);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-class EPI_SubHeader extends UIText;
+class EPI_SubHeader extends UIScrollingText;
 
 simulated function InitSubHeader(string Content, float ContainerWidth, optional name InitName)
 {

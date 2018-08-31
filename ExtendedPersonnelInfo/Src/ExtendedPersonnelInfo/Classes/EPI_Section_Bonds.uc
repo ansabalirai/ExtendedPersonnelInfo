@@ -118,7 +118,7 @@ simulated function float DoNotBonded(XComGameState_Unit Unit)
 	YOffset = 65;
 
 	Sorting.SortByCompatibility(BondCandidates);
-	ShowTopCandidates(Unit, BondCandidates, YOffset);
+	ShowTopCandidates_Horizontal(Unit, BondCandidates, YOffset);
 
 	YOffset += 10;
 
@@ -129,7 +129,7 @@ simulated function float DoNotBonded(XComGameState_Unit Unit)
 	YOffset += 30;
 
 	Sorting.SortByCohesion(BondCandidates);
-	ShowTopCandidates(Unit, BondCandidates, YOffset);
+	ShowTopCandidates_Horizontal(Unit, BondCandidates, YOffset);
 
 	return YOffset + 5;
 }
@@ -224,6 +224,174 @@ simulated function ShowTopCandidates(XComGameState_Unit CurrentUnit, array<XComG
 
 		YOffset += 70;
 	}
+}
+
+simulated function ShowTopCandidates_Horizontal(XComGameState_Unit CurrentUnit, array<XComGameState_Unit> Candidates, out float YOffset)
+{
+	// Scalars
+	local int i;
+	local int NumEntries;
+	local float RowMargin, RowWidth; // Row is the wrapper around the boxes that are arranged horizontally
+	local float EntrySpacing; // The gap between items/boxes
+	local float BGWidth; // The width of each BG box
+	local float ContentMargin, ContentWidth; // The margin inside the BGBox and the width of content
+	local float XOffset;
+	
+	// Objects and other complex types
+	local SoldierBond BondData;
+	local UIPanel CandidatePanel;
+	local UIBGBox BGBox;
+	local UIScrollingText FirstNameText, LastNameText, CompatibilityText, ClassText;
+	local UIProgressBar CohesionProgress;
+	
+	// The number of items to show
+	NumEntries = Candidates.Length < CandidatesToShow ? Candidates.Length : CandidatesToShow;
+	
+	// Margins
+	RowMargin = 5;
+	EntrySpacing = 5;
+	ContentMargin = 5;
+	
+	// Calculate widths
+	RowWidth = OwningPane.TargetWidth - (RowMargin * 2);
+	BGWidth = (RowWidth - ((NumEntries - 1) * EntrySpacing)) / NumEntries;
+	ContentWidth = BGWidth - (ContentMargin * 2);
+	
+	// Spawn individual entries
+	for (i = 0; i < NumEntries; i++) {
+		// Get bond info
+		CurrentUnit.GetBondData(Candidates[i].GetReference(), BondData);
+
+		// Calculate the X offset for this candidate
+		XOffset = RowMargin;
+		XOffset += BGWidth * i;
+		XOffset += EntrySpacing * i;
+		
+		// The parent panel for all things for this candidate
+		CandidatePanel = Spawn(class'UIPanel', self);
+		CandidatePanel.bAnimateOnInit = false;
+		CandidatePanel.InitPanel(); // No name so a unique one is generated
+		CandidatePanel.SetPosition(XOffset, YOffset);
+		
+		BGBox = Spawn(class'UIBGBox', CandidatePanel);
+		BGBox.bAnimateOnInit = false;
+		BGBox.InitBG(name("BG"));
+		BGBox.SetSize(BGWidth, 130);
+		BGBox.SetBGColor("gray");
+		
+		ClassText = Spawn(class'UIScrollingText', CandidatePanel);
+		ClassText.bAnimateOnInit = false;
+		ClassText.InitScrollingText('ClassText', GetRankWithClass(Candidates[i]));
+		ClassText.SetPosition(ContentMargin, 0);
+		ClassText.SetWidth(ContentWidth);
+		
+		FirstNameText = Spawn(class'UIScrollingText', CandidatePanel);
+		FirstNameText.bAnimateOnInit = false;
+		FirstNameText.InitScrollingText('FirstNameText', Candidates[i].GetFirstName());
+		FirstNameText.SetPosition(ContentMargin, 25);
+		FirstNameText.SetWidth(ContentWidth);
+		
+		LastNameText = Spawn(class'UIScrollingText', CandidatePanel);
+		LastNameText.bAnimateOnInit = false;
+		LastNameText.InitScrollingText('LastNameText', Candidates[i].GetLastName());
+		LastNameText.SetPosition(ContentMargin, 50);
+		LastNameText.SetWidth(ContentWidth);
+		
+		CompatibilityText = Spawn(class'UIScrollingText', CandidatePanel);
+		CompatibilityText.bAnimateOnInit = false;
+		CompatibilityText.InitScrollingText('CompatibilityText', GetCustomCompatibilityLabel(BondData.Compatibility));
+		CompatibilityText.SetPosition(ContentMargin, 75);
+		CompatibilityText.SetWidth(ContentWidth);
+		
+		CohesionProgress = Spawn(class'UIProgressBar', CandidatePanel);
+		CohesionProgress.bAnimateOnInit = false;
+		CohesionProgress.InitProgressBar(
+			name("CohesionProgress"),
+			ContentMargin, // X
+			105,           // Y
+			ContentWidth,  // Width
+			20,            // Height
+			GetCohesionPercent(BondData) // Progress
+		);
+	}
+	
+	YOffset += 130;
+}
+
+simulated function string GetClass(XComGameState_Unit Unit) {
+	return Unit.GetSoldierClassDisplayName(); // TODO: Do not depend on highlander
+}
+
+simulated function string GetRankWithClass(XComGameState_Unit Unit) {
+	local int iRank;
+	local string Result;
+
+	iRank = Unit.GetRank();
+	Result = "";
+	
+	// If not rookie then add rank
+	if (iRank != 0) {
+		Result $= `GET_RANK_ABBRV(iRank, Unit.GetSoldierClassTemplateName()) $ " ";
+	}
+	
+	Result $= GetClass(Unit);
+	
+	return Result;
+}
+
+// Reworked version of class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel
+simulated function string GetCustomCompatibilityLabel(float Compatibility) {
+	local int NumStrLength;
+	local float CompatNumber;
+	local string CompatLabel; 
+
+	CompatNumber = float(Round(Compatibility * 50.0f)) / 10.0f;
+	NumStrLength = 3;
+	
+	if(CompatNumber >= 10.0f)
+	{
+		NumStrLength = 4;
+	}
+	
+	// First the number goes with space and dash after it
+	CompatLabel = Left(string(CompatNumber), NumStrLength) $ " - ";
+	
+	// Languages use SI-French style fractional delimiter (comma instead of dot).
+	switch (GetLanguage())
+	{
+	case "DEU":
+	case "FRA":
+	case "RUS":
+	case "ITA":
+	case "POL":
+		CompatLabel = Repl(CompatLabel, ".", ","); 
+		break;
+	}
+	
+	// Add the text
+	if(IsFloatWithinMinMax(Compatibility, class'X2StrategyGameRulesetDataStructures'.default.VeryLowCompatRange))
+	{
+		CompatLabel $= Locs(class'X2StrategyGameRulesetDataStructures'.default.VeryLowCompatLabel);
+	}
+	else if(IsFloatWithinMinMax(Compatibility, class'X2StrategyGameRulesetDataStructures'.default.LowCompatRange))
+	{
+		CompatLabel $= Locs(class'X2StrategyGameRulesetDataStructures'.default.LowCompatLabel);
+	}
+	else if(IsFloatWithinMinMax(Compatibility, class'X2StrategyGameRulesetDataStructures'.default.HighCompatRange))
+	{
+		CompatLabel $= Locs(class'X2StrategyGameRulesetDataStructures'.default.HighCompatLabel);
+	}
+	else if(IsFloatWithinMinMax(Compatibility, class'X2StrategyGameRulesetDataStructures'.default.VeryHighCompatRange))
+	{
+		CompatLabel $= Locs(class'X2StrategyGameRulesetDataStructures'.default.VeryHighCompatLabel);
+	}
+	
+	return CompatLabel;
+}
+
+static function bool IsFloatWithinMinMax(float Value, X2StrategyGameRulesetDataStructures.MinMaxFloat FloatStruct)
+{
+	return class'X2StrategyGameRulesetDataStructures'.static.IsFloatWithinMinMax(Value, FloatStruct);
 }
 
 // Copied from UISoldierBondScreen::RefreshHeader

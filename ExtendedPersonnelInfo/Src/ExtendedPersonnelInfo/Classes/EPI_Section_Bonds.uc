@@ -87,7 +87,7 @@ simulated function float DoBondmate(StateObjectReference BondmateRef, SoldierBon
 	);
 
 	// How high this section is plus a bit of margin
-	return BondIcon.Height + 10;
+	return BondIcon.Height + 15;
 }
 
 simulated function float DoNotBonded(XComGameState_Unit Unit)
@@ -360,7 +360,7 @@ simulated function string GetRankWithClass(XComGameState_Unit Unit) {
 	return Result;
 }
 
-// Reworked version of class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel
+// Reworked version of class'X2StrategyGameRulesetDataStructures'.static.GetSoldierCompatibilityLabel()
 simulated function string GetCustomCompatibilityLabel(float Compatibility) {
 	local int NumStrLength;
 	local float CompatNumber;

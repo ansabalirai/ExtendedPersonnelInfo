@@ -55,6 +55,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Traits.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SidePane.uc">
       <SubType>Content</SubType>
     </Content>

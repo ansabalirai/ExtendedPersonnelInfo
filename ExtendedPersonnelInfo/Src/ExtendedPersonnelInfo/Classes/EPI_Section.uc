@@ -1,12 +1,12 @@
 // Base class for all sections
-class EPI_Section extends UIPanel;
+class EPI_Section extends UIPanel abstract;
 
 // These are set outside
 var EPI_SidePane OwningPane;
 
 simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 {
-	// Should be overriden by base classes
+    `REDSCREEN("Error:" @ default.Class @ "needs to override" @ GetFuncName());
 }
 
 defaultproperties

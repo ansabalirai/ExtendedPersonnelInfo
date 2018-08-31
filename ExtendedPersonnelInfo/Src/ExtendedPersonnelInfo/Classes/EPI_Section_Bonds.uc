@@ -1,8 +1,13 @@
-class EPI_Section_Bonds extends EPI_Section;
+class EPI_Section_Bonds extends EPI_Section config(ExtendedPersonnelInfo);
 
 // Config
 var int CandidatesToShow;
 var float CandidateMargin;
+
+// Real config
+var config bool NotBondedHighestCompatibility;
+var config bool NotBondedHighestCohesion;
+var config bool NotBondedOneRow;
 
 simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 {
@@ -111,27 +116,43 @@ simulated function float DoNotBonded(XComGameState_Unit Unit)
 	Sorting = new class'EPI_Utilities_BondCadidateSorting';
 	Sorting.CurrentUnit = Unit;
 
-	BestCompatibilityHeader = Spawn(class'EPI_SubHeader', self);
-	BestCompatibilityHeader.InitSubHeader("Highest compatibility", OwningPane.TargetWidth, name("BestCompatibilityHeader"));
-	BestCompatibilityHeader.SetPosition(5, 34);
+	YOffset = 34;
+	
+	if (default.NotBondedHighestCompatibility) {
+		BestCompatibilityHeader = Spawn(class'EPI_SubHeader', self);
+		BestCompatibilityHeader.InitSubHeader("Highest compatibility", OwningPane.TargetWidth, name("BestCompatibilityHeader"));
+		BestCompatibilityHeader.SetPosition(5, YOffset);
 
-	YOffset = 65;
+		YOffset += 30;
+		Sorting.SortByCompatibility(BondCandidates);
+		
+		if (default.NotBondedOneRow){
+			ShowTopCandidates_Horizontal(Unit, BondCandidates, YOffset);
+		} else {
+			ShowTopCandidates(Unit, BondCandidates, YOffset);
+		}
+		
+		YOffset += 5;
+	}
 
-	Sorting.SortByCompatibility(BondCandidates);
-	ShowTopCandidates_Horizontal(Unit, BondCandidates, YOffset);
+	if (default.NotBondedHighestCohesion) {
+		BestCohesionHeader = Spawn(class'EPI_SubHeader', self);
+		BestCohesionHeader.InitSubHeader("Highest cohesion", OwningPane.TargetWidth, name("BestCohesionHeader"));
+		BestCohesionHeader.SetPosition(5, YOffset);
 
-	YOffset += 10;
+		YOffset += 30;
+		Sorting.SortByCohesion(BondCandidates);
+		
+		if (default.NotBondedOneRow){
+			ShowTopCandidates_Horizontal(Unit, BondCandidates, YOffset);
+		} else {
+			ShowTopCandidates(Unit, BondCandidates, YOffset);
+		}
+		
+		YOffset += 5;
+	}
 
-	BestCohesionHeader = Spawn(class'EPI_SubHeader', self);
-	BestCohesionHeader.InitSubHeader("Highest cohesion", OwningPane.TargetWidth, name("BestCohesionHeader"));
-	BestCohesionHeader.SetPosition(5, YOffset);
-
-	YOffset += 30;
-
-	Sorting.SortByCohesion(BondCandidates);
-	ShowTopCandidates_Horizontal(Unit, BondCandidates, YOffset);
-
-	return YOffset + 5;
+	return YOffset;
 }
 
 simulated function array<XComGameState_Unit> GetBondingCandidatesFor(XComGameState_Unit Unit)

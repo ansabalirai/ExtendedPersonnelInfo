@@ -17,6 +17,9 @@
     <Folder Include="Src\ExtendedPersonnelInfo\Classes\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\XcomExtendedPersonnelInfo.ini">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ModPreview.jpg" />
     <Content Include="Config\XComEditor.ini" />
     <Content Include="Config\XComEngine.ini" />

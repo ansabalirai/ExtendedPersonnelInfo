@@ -10,7 +10,8 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local array<SlotData> Slots;
 	local SlotData Slot;
 	local XComGameState_Item Item;
-	local float CurrentYOffset, LeftYOffset, RightYOffset, RightXOffset;
+	local float LeftYOffset, RightYOffset, RightXOffset;
+	local float CurrentYOffset, CurrentXOffset;
 	local float ContainerMargin, ContainerWidth, ContentMargin, ContentWidth;
 	local bool IsRight;
 	local EPI_SectionHeader Header;
@@ -41,6 +42,7 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 		// Decide which column this slots goes, but give priority to left one
 		IsRight = RightYOffset < LeftYOffset;
 		CurrentYOffset = IsRight ? RightYOffset : LeftYOffset;
+		CurrentXOffset = (ContainerMargin + ContentMargin) + (IsRight ? RightXOffset : float(0));
 
 		SlotBG = Spawn(class'UIBGBox', self);
 		SlotBG.bAnimateOnInit = false;
@@ -54,8 +56,7 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 
 		SlotHeader = Spawn(class'EPI_SubHeader', self);
 		SlotHeader.InitSubHeader(strSlotType, ContentWidth);
-		SlotHeader.SetPosition(ContainerMargin + ContentMargin, CurrentYOffset);
-		if (IsRight) SlotHeader.SetX(SlotHeader.X + RightXOffset);
+		SlotHeader.SetPosition(CurrentXOffset, CurrentYOffset);
 
 		CurrentYOffset += 30;
 
@@ -63,11 +64,12 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 			ItemText = Spawn(class'UIScrollingText', self);
 			ItemText.bAnimateOnInit = false;
 			ItemText.InitScrollingText(, Item.GetMyTemplate().GetItemFriendlyName(Item.GetReference().ObjectID));
-			ItemText.SetPosition(ContainerMargin + ContentMargin, CurrentYOffset);
+			ItemText.SetPosition(CurrentXOffset, CurrentYOffset);
 			ItemText.SetWidth(ContentWidth);
-			if (IsRight) ItemText.SetX(ItemText.X + RightXOffset);
 
 			CurrentYOffset += 25;
+
+			DisplayUpgrades_new(Item, ContentWidth, CurrentXOffset, CurrentYOffset);
 		}
 
 		CurrentYOffset += 10;
@@ -79,6 +81,51 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 
 	// We use the bigger Y offset as the overall offset of whole section
 	YOffset = LeftYOffset > RightYOffset ? LeftYOffset : RightYOffset;
+}
+
+simulated function DisplayUpgrades (XComGameState_Item Item, float ContentWidth, float CurrentXOffset, out float CurrentYOffset) {
+	local array<X2WeaponUpgradeTemplate> arrUpgradeTemplates;
+	local X2WeaponUpgradeTemplate UpgradeTemplate;
+	local UIScrollingText UpgradeText;
+
+	arrUpgradeTemplates = Item.GetMyWeaponUpgradeTemplates();
+	foreach arrUpgradeTemplates(UpgradeTemplate) {
+		UpgradeText = Spawn(class'UIScrollingText', self);
+		UpgradeText.bAnimateOnInit = false;
+		UpgradeText.InitScrollingText(, " - " $ UpgradeTemplate.GetItemFriendlyName());
+		UpgradeText.SetPosition(CurrentXOffset, CurrentYOffset);
+		UpgradeText.SetWidth(ContentWidth);
+
+		CurrentYOffset += 25;
+	}
+}
+
+simulated function DisplayUpgrades_new (XComGameState_Item Item, float ContentWidth, float CurrentXOffset, out float CurrentYOffset)
+{
+	// Data
+	local array<X2WeaponUpgradeTemplate> arrUpgradeTemplates;
+	local X2WeaponUpgradeTemplate UpgradeTemplate;
+
+	// UI
+	local EPI_VerticalLayout_Container Container;
+	local EPI_Section_Loadout_Upgrade Upgrade;
+
+	arrUpgradeTemplates = Item.GetMyWeaponUpgradeTemplates();
+	
+	Container = Spawn(class'EPI_VerticalLayout_Container', self);
+	Container.InitContainer(ContentWidth);
+	Container.SetPosition(CurrentXOffset, CurrentYOffset);
+
+	foreach arrUpgradeTemplates(UpgradeTemplate) {
+		Upgrade = Spawn(class'EPI_Section_Loadout_Upgrade', Container);
+		Upgrade.InitLayoutItem();
+		Upgrade.UpgradeTemplate = UpgradeTemplate;
+
+		Container.AddLayoutItem(Upgrade);
+	}
+
+	Container.Display();
+	CurrentYOffset += Container.CurrentYOffset;
 }
 
 simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots)

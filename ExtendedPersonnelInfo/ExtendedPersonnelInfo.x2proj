@@ -52,6 +52,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Upgrade.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc">
       <SubType>Content</SubType>
     </Content>
@@ -68,6 +71,18 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities_BondCadidateSorting.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_Container.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_Item.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemBorder.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemPadding.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\X2DownloadableContentInfo_ExtendedPersonnelInfo.uc" />

@@ -29,6 +29,11 @@ simulated function Display()
 	}
 
 	DoDisplay();
+	MarkDisplayed();
+}
+
+simulated protected function MarkDisplayed ()
+{
 	bIsDisplayed = true;
 }
 

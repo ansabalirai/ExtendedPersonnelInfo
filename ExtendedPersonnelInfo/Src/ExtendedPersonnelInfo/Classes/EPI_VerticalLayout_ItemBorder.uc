@@ -1,17 +1,25 @@
 class EPI_VerticalLayout_ItemBorder extends EPI_VerticalLayout_ItemPadding;
 
-delegate ConfigureBGBox(UIBGBox BGBox);
+var UIBGBox BGBox;
+
+// This can be used to modify the border after all built-in configuration is finished
+delegate ConfigureBGBox(UIBGBox BG);
+
+simulated function InitLayoutItem()
+{
+	Super.InitLayoutItem();
+
+	// We init the bg before everything else so that it goes under
+	BGBox = Spawn(class'UIBGBox', self);
+	BGBox.bAnimateOnInit = false;
+	BGBox.InitBG('BG', 0, 0, Width);
+	BGBox.SetBGColor("gray");
+}
 
 simulated function protected DoDisplay()
 {
-	local UIBGBox BGBox;
-
 	Super.DoDisplay();
 
-	BGBox = Spawn(class'UIBGBox', self);
-	BGBox.bAnimateOnInit = false;
-	BGBox.InitBG('BG', 0, 0, Width, CurrentYOffset);
-	BGBox.SetBGColor("gray");
-
+	BGBox.SetHeight(CurrentYOffset);
 	ConfigureBGBox(BGBox);
 }

@@ -5,127 +5,79 @@ struct SlotData {
 	var array<XComGameState_Item> Items;
 };
 
+// TODO: 
+//	  - Right column right border is not close enough
+//    - Bottom borders are messed up
+//    - Spacing under borders is messed up
+
 simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
-{	
+{
+	// Data
 	local array<SlotData> Slots;
 	local SlotData Slot;
-	local XComGameState_Item Item;
-	local float LeftYOffset, RightYOffset, RightXOffset;
-	local float CurrentYOffset, CurrentXOffset;
-	local float ContainerMargin, ContainerWidth, ContentMargin, ContentWidth;
-	local bool IsRight;
-	local EPI_SectionHeader Header;
-	local UIBGBox SlotBG;
-	local string strSlotType;
-	local EPI_SubHeader SlotHeader;
-	local UIScrollingText ItemText;
 
-	ContainerMargin = 5;
-	RightXOffset = OwningPane.TargetWidth / 2;
-	ContainerWidth = RightXOffset - (ContainerMargin * 2);
-	ContentMargin = 5;
-	ContentWidth = ContainerWidth - (ContentMargin * 2);
+	// Calculations
+	local float SectionPadding, SectionUsableWidth, ContainersWidth;
+	local bool IsRight;
+
+	// UI
+	local EPI_VerticalLayout_Container LeftContainer, RightContainer, CurrentContainer;
+	local EPI_SectionHeader Header;
+
+	SectionPadding = 5;
+	SectionUsableWidth = OwningPane.TargetWidth - (SectionPadding * 2);
+	ContainersWidth = SectionUsableWidth / 2;
 
 	GatherData(Unit, Slots);
 	InitPanel(name("Loadout"));
 	SetPosition(0, 0); // We use YOffset directly
 
 	Header = Spawn(class'EPI_SectionHeader', self);
-	Header.InitSectionHeader("Loadout", OwningPane.TargetWidth - (ContainerMargin * 2), name("LoadoutHeader"));
-	Header.SetPosition(ContainerMargin, YOffset);
+	Header.InitSectionHeader("Loadout", SectionUsableWidth, name("LoadoutHeader"));
+	Header.SetPosition(SectionPadding, YOffset);
 
 	YOffset += 40;
-	LeftYOffset = YOffset;
-	RightYOffset = YOffset;
-	
+
+	LeftContainer = Spawn(class'EPI_VerticalLayout_Container', self);
+	LeftContainer.InitContainer(ContainersWidth);
+	LeftContainer.SetPosition(SectionPadding, YOffset);
+
+	RightContainer = Spawn(class'EPI_VerticalLayout_Container', self);
+	RightContainer.InitContainer(ContainersWidth);
+	RightContainer.SetPosition(SectionPadding + ContainersWidth, YOffset);
+
 	foreach Slots(Slot) {
-		// Decide which column this slots goes, but give priority to left one
-		IsRight = RightYOffset < LeftYOffset;
-		CurrentYOffset = IsRight ? RightYOffset : LeftYOffset;
-		CurrentXOffset = (ContainerMargin + ContentMargin) + (IsRight ? RightXOffset : float(0));
+		// Decide which side
+		IsRight = RightContainer.CurrentYOffset < LeftContainer.CurrentYOffset;
+		CurrentContainer = IsRight ? RightContainer : LeftContainer;
 
-		SlotBG = Spawn(class'UIBGBox', self);
-		SlotBG.bAnimateOnInit = false;
-		SlotBG.InitBG(, ContainerMargin, CurrentYOffset, ContainerWidth, 35 + (Slot.Items.Length * 25));
-		SlotBG.SetBGColor("gray");
-		if (IsRight) SlotBG.SetX(SlotBG.X + RightXOffset);
-
-		// Leave only the first letter Capital-case, lowercase the rest
-		strSlotType = class'UIArmory_loadout'.default.m_strInventoryLabels[Slot.SlotType];
-		strSlotType = Left(strSlotType, 1) $ Locs(Right(strSlotType, Len(strSlotType) - 1));
-
-		SlotHeader = Spawn(class'EPI_SubHeader', self);
-		SlotHeader.InitSubHeader(strSlotType, ContentWidth);
-		SlotHeader.SetPosition(CurrentXOffset, CurrentYOffset);
-
-		CurrentYOffset += 30;
-
-		foreach Slot.Items(Item) {
-			ItemText = Spawn(class'UIScrollingText', self);
-			ItemText.bAnimateOnInit = false;
-			ItemText.InitScrollingText(, Item.GetMyTemplate().GetItemFriendlyName(Item.GetReference().ObjectID));
-			ItemText.SetPosition(CurrentXOffset, CurrentYOffset);
-			ItemText.SetWidth(ContentWidth);
-
-			CurrentYOffset += 25;
-
-			DisplayUpgrades_new(Item, ContentWidth, CurrentXOffset, CurrentYOffset);
-		}
-
-		CurrentYOffset += 10;
-
-		// "Submit" the Y offset changes
-		if (IsRight) RightYOffset = CurrentYOffset;
-		else LeftYOffset = CurrentYOffset;
+		DisplaySlot(Slot, CurrentContainer);
 	}
 
-	// We use the bigger Y offset as the overall offset of whole section
-	YOffset = LeftYOffset > RightYOffset ? LeftYOffset : RightYOffset;
+	YOffset += FMax(RightContainer.CurrentYOffset, LeftContainer.CurrentYOffset);
 }
 
-simulated function DisplayUpgrades (XComGameState_Item Item, float ContentWidth, float CurrentXOffset, out float CurrentYOffset) {
-	local array<X2WeaponUpgradeTemplate> arrUpgradeTemplates;
-	local X2WeaponUpgradeTemplate UpgradeTemplate;
-	local UIScrollingText UpgradeText;
-
-	arrUpgradeTemplates = Item.GetMyWeaponUpgradeTemplates();
-	foreach arrUpgradeTemplates(UpgradeTemplate) {
-		UpgradeText = Spawn(class'UIScrollingText', self);
-		UpgradeText.bAnimateOnInit = false;
-		UpgradeText.InitScrollingText(, " - " $ UpgradeTemplate.GetItemFriendlyName());
-		UpgradeText.SetPosition(CurrentXOffset, CurrentYOffset);
-		UpgradeText.SetWidth(ContentWidth);
-
-		CurrentYOffset += 25;
-	}
-}
-
-simulated function DisplayUpgrades_new (XComGameState_Item Item, float ContentWidth, float CurrentXOffset, out float CurrentYOffset)
+simulated protected function DisplaySlot (SlotData Slot, EPI_VerticalLayout_Container Container)
 {
-	// Data
-	local array<X2WeaponUpgradeTemplate> arrUpgradeTemplates;
-	local X2WeaponUpgradeTemplate UpgradeTemplate;
+	local EPI_VerticalLayout_ItemBorder Border;
+	local EPI_Section_Loadout_Slot SlotElement;
 
-	// UI
-	local EPI_VerticalLayout_Container Container;
-	local EPI_Section_Loadout_Upgrade Upgrade;
+	// Create border for slot
+	Border = Spawn(class'EPI_VerticalLayout_ItemBorder', Container);
+	Border.InitLayoutItem();
+	Border.SetVerticalPaddings(5);
 
-	arrUpgradeTemplates = Item.GetMyWeaponUpgradeTemplates();
-	
-	Container = Spawn(class'EPI_VerticalLayout_Container', self);
-	Container.InitContainer(ContentWidth);
-	Container.SetPosition(CurrentXOffset, CurrentYOffset);
+	// Create slot itself
+	SlotElement = Spawn(class'EPI_Section_Loadout_Slot', Border);
+	SlotElement.InitLayoutItem();
+	SlotElement.Slot = Slot;
 
-	foreach arrUpgradeTemplates(UpgradeTemplate) {
-		Upgrade = Spawn(class'EPI_Section_Loadout_Upgrade', Container);
-		Upgrade.InitLayoutItem();
-		Upgrade.UpgradeTemplate = UpgradeTemplate;
+	// Wrap slot into border
+	Border.Content = SlotElement;
 
-		Container.AddLayoutItem(Upgrade);
-	}
-
+	// Add everything to the container and force display so it calculates the height
+	Container.AddLayoutItem(Border);
 	Container.Display();
-	CurrentYOffset += Container.CurrentYOffset;
 }
 
 simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots)

@@ -52,6 +52,12 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Item.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Slot.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Upgrade.uc">
       <SubType>Content</SubType>
     </Content>

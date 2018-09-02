@@ -7,18 +7,15 @@ var float PaddingLeft;
 
 var EPI_VerticalLayout_Item Content;
 
-simulated function InitLayoutItem()
-{
-	Super.InitLayoutItem();
-
+simulated function protected DoDisplay() {
 	if (Content == none) {
 		`REDSCREEN("Error:" @ default.Class @ "has no content set");
+		return;
 	} else if (Content.ParentPanel != self) {
 		`REDSCREEN(Content.class @ "should be child of padding container it's inside of");
+		return;
 	}
-}
 
-simulated function protected DoDisplay() {
 	Content.ConfigureVerticalLayoutItem(PaddingLeft, PaddingTop, Width - (PaddingLeft + PaddingRight));
 	Content.Display();
 

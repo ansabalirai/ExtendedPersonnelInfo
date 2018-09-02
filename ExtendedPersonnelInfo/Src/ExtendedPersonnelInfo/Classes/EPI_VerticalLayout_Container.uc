@@ -9,20 +9,30 @@ simulated function InitContainer(float InitWidth) {
 }
 
 simulated function AddLayoutItem (EPI_VerticalLayout_Item Item) {
+	if (Item.bIsDisplayed) {
+		`REDSCREEN(Item.name @ "is already displayed - cannot be added to container");
+		return;
+	}
+
 	if (Item.ParentPanel != self) {
-		`REDSCREEN(Item.class @ "should be child of container it's attached to");
+		`REDSCREEN(Item.name @ "should be child of container it's attached to");
+		return;
 	}
 
 	arrContents.AddItem(Item);
 }
 
-simulated function protected DoDisplay() {
+simulated function Display() {
 	local EPI_VerticalLayout_Item Item;
 
 	foreach arrContents(Item) {
+		if (Item.bIsDisplayed) continue;
+
 		Item.ConfigureVerticalLayoutItem(0, CurrentYOffset, Width);
 		Item.Display();
 
 		IncreaseYOffset(Item.CurrentYOffset);
 	}
+
+	MarkDisplayed();
 }

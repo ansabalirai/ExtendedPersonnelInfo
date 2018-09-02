@@ -2,6 +2,11 @@ class EPI_Section_Loadout_Slot extends EPI_VerticalLayout_Item;
 
 var SlotData Slot;
 
+/* TODO: Change how slot name is retrived:
+	1) Custom-defined dictionary
+	2) CHItemSlot::GetDisplayName (with custom casing logic) - skip if highlander isn't present
+	3) class'UIArmory_loadout'.default.m_strInventoryLabels[Slot.SlotType] (with custom casing logic)
+ */
 simulated protected function DoDisplay () 
 {
 	local string strSlotType;

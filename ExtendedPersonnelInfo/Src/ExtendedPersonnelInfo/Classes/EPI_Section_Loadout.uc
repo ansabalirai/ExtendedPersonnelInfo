@@ -1,4 +1,6 @@
-class EPI_Section_Loadout extends EPI_Section;
+class EPI_Section_Loadout extends EPI_Section config(ExtendedPersonnelInfo);
+
+var config array<EInventorySlot> FullWidthSlots;
 
 struct SlotData {
 	var EInventorySlot SlotType;
@@ -8,7 +10,7 @@ struct SlotData {
 simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 {
 	// Data
-	local array<SlotData> Slots;
+	local array<SlotData> Slots, FullRowSlots, SmallSlots;
 	local SlotData Slot;
 
 	// Calculations
@@ -17,7 +19,7 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local bool IsRight;
 
 	// UI
-	local EPI_VerticalLayout_Container LeftContainer, RightContainer, CurrentContainer;
+	local EPI_VerticalLayout_Container FullWidthContainer, LeftContainer, RightContainer, CurrentContainer;
 	local EPI_SectionHeader Header;
 
 	SectionPadding = 5;
@@ -27,6 +29,8 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	ContainersWidth = (SectionUsableWidth - SpacingBetweenContainers) / 2;
 
 	GatherData(Unit, Slots);
+	SplitSlots(Slots, FullRowSlots, SmallSlots);
+
 	InitPanel(name("Loadout"));
 	SetPosition(0, 0); // We use YOffset directly
 
@@ -36,6 +40,19 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 
 	YOffset += 40;
 
+	// Full width slots
+	FullWidthContainer = Spawn(class'EPI_VerticalLayout_Container', self);
+	FullWidthContainer.InitContainer(SectionUsableWidth);
+	FullWidthContainer.SetPosition(SectionPadding, YOffset);
+	FullWidthContainer.SpacingBetweenItems = 5;
+
+	foreach FullRowSlots(Slot) {
+		DisplaySlot(Slot, FullWidthContainer);
+	}
+
+	YOffset += FullWidthContainer.CurrentYOffset + 5;
+
+	// Half-column slots
 	LeftContainer = Spawn(class'EPI_VerticalLayout_Container', self);
 	LeftContainer.InitContainer(ContainersWidth);
 	LeftContainer.SetPosition(SectionPadding, YOffset);
@@ -46,7 +63,7 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	RightContainer.SetPosition(SectionPadding + ContainersWidth + SpacingBetweenContainers, YOffset);
 	RightContainer.SpacingBetweenItems = 5;
 
-	foreach Slots(Slot) {
+	foreach SmallSlots(Slot) {
 		// Decide which side
 		IsRight = RightContainer.CurrentYOffset < LeftContainer.CurrentYOffset;
 		CurrentContainer = IsRight ? RightContainer : LeftContainer;
@@ -130,5 +147,24 @@ simulated function GetSlotsToShow (XComGameState_Unit Unit, out array<EInventory
 		if (SlotTemplate.UnitShowSlot(Unit)) {
 			SlotsToShow.Add(SlotTemplate.InvSlot);
 		}
+	}
+}
+
+simulated function SplitSlots (array<SlotData> AllSlots, out array<SlotData> FullRowSlots, out array<SlotData> SmallSlots)
+{
+	local SlotData Slot;
+
+	foreach AllSlots(Slot) {
+		if (default.FullWidthSlots.Find(Slot.SlotType) > -1) {
+			FullRowSlots.AddItem(Slot);
+		} else {
+			SmallSlots.AddItem(Slot);
+		}
+	}
+
+	// If there is only one small slot then make it full width as otherwise we will just have empty space in right column
+	if (SmallSlots.Length == 1) {
+		FullRowSlots.AddItem(SmallSlots[0]);
+		SmallSlots.Length = 0;
 	}
 }

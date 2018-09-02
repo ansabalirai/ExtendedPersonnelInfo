@@ -16,7 +16,9 @@ simulated function protected DoDisplay() {
 		return;
 	}
 
-	Content.ConfigureVerticalLayoutItem(PaddingLeft, PaddingTop, Width - (PaddingLeft + PaddingRight));
+	IncreaseYOffset(PaddingTop);
+
+	Content.ConfigureVerticalLayoutItem(PaddingLeft, CurrentYOffset, Width - (PaddingLeft + PaddingRight));
 	Content.Display();
 
 	IncreaseYOffset(Content.CurrentYOffset);

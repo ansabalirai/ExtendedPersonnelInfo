@@ -5,11 +5,6 @@ struct SlotData {
 	var array<XComGameState_Item> Items;
 };
 
-// TODO: 
-//	  - Right column right border is not close enough
-//    - Bottom borders are messed up
-//    - Spacing under borders is messed up
-
 simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 {
 	// Data
@@ -17,7 +12,8 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local SlotData Slot;
 
 	// Calculations
-	local float SectionPadding, SectionUsableWidth, ContainersWidth;
+	local float SectionPadding, SectionUsableWidth;
+	local float SpacingBetweenContainers, ContainersWidth;
 	local bool IsRight;
 
 	// UI
@@ -25,8 +21,10 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	local EPI_SectionHeader Header;
 
 	SectionPadding = 5;
+	SpacingBetweenContainers = 5;
+
 	SectionUsableWidth = OwningPane.TargetWidth - (SectionPadding * 2);
-	ContainersWidth = SectionUsableWidth / 2;
+	ContainersWidth = (SectionUsableWidth - SpacingBetweenContainers) / 2;
 
 	GatherData(Unit, Slots);
 	InitPanel(name("Loadout"));
@@ -41,10 +39,12 @@ simulated function InitAndDisplay(XComGameState_Unit Unit, out float YOffset)
 	LeftContainer = Spawn(class'EPI_VerticalLayout_Container', self);
 	LeftContainer.InitContainer(ContainersWidth);
 	LeftContainer.SetPosition(SectionPadding, YOffset);
+	LeftContainer.SpacingBetweenItems = 5;
 
 	RightContainer = Spawn(class'EPI_VerticalLayout_Container', self);
 	RightContainer.InitContainer(ContainersWidth);
-	RightContainer.SetPosition(SectionPadding + ContainersWidth, YOffset);
+	RightContainer.SetPosition(SectionPadding + ContainersWidth + SpacingBetweenContainers, YOffset);
+	RightContainer.SpacingBetweenItems = 5;
 
 	foreach Slots(Slot) {
 		// Decide which side

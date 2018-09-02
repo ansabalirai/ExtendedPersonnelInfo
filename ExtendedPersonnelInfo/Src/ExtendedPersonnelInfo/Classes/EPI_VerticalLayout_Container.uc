@@ -2,6 +2,8 @@ class EPI_VerticalLayout_Container extends EPI_VerticalLayout_Item;
 
 var private array<EPI_VerticalLayout_Item> arrContents;
 
+var float SpacingBetweenItems;
+
 // Shortcut in case the container isn't wrapped into anything else
 simulated function InitContainer(float InitWidth) {
 	InitLayoutItem();
@@ -24,15 +26,29 @@ simulated function AddLayoutItem (EPI_VerticalLayout_Item Item) {
 
 simulated function Display() {
 	local EPI_VerticalLayout_Item Item;
+	local bool HadPrevious;
 
 	foreach arrContents(Item) {
-		if (Item.bIsDisplayed) continue;
+		if (Item.bIsDisplayed) {
+			HadPrevious = true;
+			continue;
+		}
+
+		if (HadPrevious) {
+			IncreaseYOffset(SpacingBetweenItems);
+		}
 
 		Item.ConfigureVerticalLayoutItem(0, CurrentYOffset, Width);
 		Item.Display();
 
 		IncreaseYOffset(Item.CurrentYOffset);
+		HadPrevious = true;
 	}
 
 	MarkDisplayed();
+}
+
+defaultproperties
+{
+	SpacingBetweenItems = 0;
 }

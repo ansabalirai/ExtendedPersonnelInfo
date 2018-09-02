@@ -21,7 +21,7 @@ simulated protected function DoDisplay ()
 	ItemText.SetPosition(0, CurrentYOffset);
 	ItemText.SetWidth(Width);
 
-	IncreaseYOffset(25);
+	IncreaseYOffset(20);
 	
 	UpgradesContainer = Spawn(class'EPI_VerticalLayout_Container', self);
 	UpgradesContainer.InitContainer(Width);

@@ -19,7 +19,7 @@ simulated protected function DoDisplay ()
 	SlotHeader.InitSubHeader(strSlotType, Width);
 	SlotHeader.SetPosition(0, CurrentYOffset);
 
-	IncreaseYOffset(30);
+	IncreaseYOffset(25);
 
 	ItemsContainer = Spawn(class'EPI_VerticalLayout_Container', self);
 	ItemsContainer.InitContainer(Width);

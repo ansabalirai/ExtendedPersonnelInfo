@@ -12,13 +12,17 @@ simulated function InitLeftPane()
 simulated function CreateContentFor (XComGameState_Unit Unit)
 {
 	local float YOffset;
-	local EPI_Section Headshot, Bonds, Traits;
+	local EPI_Section Headshot, Stats, Bonds, Traits;
 
 	YOffset = 0;
 
 	Headshot = Spawn(class'EPI_Section_Headshot', InfoContainer);
 	Headshot.OwningPane = self;
 	Headshot.InitAndDisplay(Unit, YOffset);
+
+	Stats = Spawn(class'EPI_Section_Stats', InfoContainer);
+	Stats.OwningPane = self;
+	Stats.InitAndDisplay(Unit, YOffset);
 
 	Bonds = Spawn(class'EPI_Section_Bonds', InfoContainer);
 	Bonds.OwningPane = self;

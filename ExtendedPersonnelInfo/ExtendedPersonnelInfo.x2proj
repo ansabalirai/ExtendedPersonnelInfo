@@ -20,6 +20,9 @@
     <Content Include="Config\XcomExtendedPersonnelInfo.ini">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Content\EPI_UILibrary.upk">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="ModPreview.jpg" />
     <Content Include="Config\XComEditor.ini" />
     <Content Include="Config\XComEngine.ini" />
@@ -62,6 +65,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Stats.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Traits.uc">

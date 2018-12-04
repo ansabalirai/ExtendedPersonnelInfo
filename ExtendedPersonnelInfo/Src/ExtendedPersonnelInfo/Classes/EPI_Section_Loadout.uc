@@ -1,6 +1,7 @@
 class EPI_Section_Loadout extends EPI_Section config(ExtendedPersonnelInfo);
 
 var config array<EInventorySlot> FullWidthSlots;
+var config bool EnableDataDebug;
 
 struct SlotData {
 	var EInventorySlot SlotType;
@@ -109,20 +110,26 @@ simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots
 	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit,,,, SlotsToShow);
 	PrevSlotType = -1; // Enums start at 0 so this is guranteed not to match with anything
 
+	`log("Preparing loadout items", EnableDataDebug, 'EPI');
+
 	while (En.HasNext())
 	{
 		En.Next();
 
 		if (PrevSlotType != En.Slot) { // Changed slot type, refresh CurrentSlotData
 			if (CurrentSlotData.Items.Length > 0) { // We have some items in this slot
+				`log("Slot" @ CurrentSlotData.SlotType @ "has items, adding to display", EnableDataDebug, 'EPI');
 				Slots.AddItem(CurrentSlotData);
 			}
 
 			CurrentSlotData = EmptySlotData;
 			CurrentSlotData.SlotType = En.Slot;
+		
+			`log("Starting slot" @ En.Slot, EnableDataDebug, 'EPI');
 		} 
 
 		if (En.ItemState != none) {
+			`log("Adding item with template name" @ En.ItemState.GetMyTemplateName() @ "to slot" @ En.Slot, EnableDataDebug, 'EPI');
 			CurrentSlotData.Items.AddItem(En.ItemState);
 		}
 
@@ -131,8 +138,11 @@ simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots
 
 	// Add the last slot
 	if (CurrentSlotData.Items.Length > 0) {
+		`log("Slot" @ CurrentSlotData.SlotType @ "has items, adding to display", EnableDataDebug, 'EPI');
 		Slots.AddItem(CurrentSlotData);
 	}
+	
+	`log("Finished preparing loadout items", EnableDataDebug, 'EPI');
 }
 
 simulated function GetSlotsToShow (XComGameState_Unit Unit, out array<EInventorySlot> SlotsToShow) 
@@ -143,8 +153,11 @@ simulated function GetSlotsToShow (XComGameState_Unit Unit, out array<EInventory
 	SlotsToShow = class'CHItemSlot'.static.GetDefaultDisplayedSlots(Unit);
 	ModSlots = class'CHItemSlot'.static.GetAllSlotTemplates();
 
+	`log("Gathering mod slots to show", EnableDataDebug, 'EPI');
+
 	foreach ModSlots(SlotTemplate) {
 		if (SlotTemplate.UnitShowSlot(Unit)) {
+			`log("Mod slot" @ SlotTemplate.InvSlot @ "is added to display", EnableDataDebug, 'EPI');
 			SlotsToShow.Add(SlotTemplate.InvSlot);
 		}
 	}

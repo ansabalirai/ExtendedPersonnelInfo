@@ -2,7 +2,6 @@ class EPI_Section_Loadout extends EPI_Section config(ExtendedPersonnelInfo);
 
 var config array<EInventorySlot> FullWidthSlots;
 var config bool EnableDataDebug;
-var config bool SkipCustomModSlotsLogic;
 
 struct SlotData {
 	var EInventorySlot SlotType;
@@ -101,14 +100,11 @@ simulated protected function DisplaySlot (SlotData Slot, EPI_VerticalLayout_Cont
 
 simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots)
 {
-	local array<EInventorySlot> SlotsToShow;
 	local CHUIItemSlotEnumerator En;
 	local EInventorySlot PrevSlotType;
 	local SlotData CurrentSlotData, EmptySlotData;
 
-	GetSlotsToShow(Unit, SlotsToShow);
-
-	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit,,,, SlotsToShow);
+	En = class'CHUIItemSlotEnumerator'.static.CreateEnumerator(Unit);
 	PrevSlotType = -1; // Enums start at 0 so this is guranteed not to match with anything
 
 	`log("Preparing loadout items", EnableDataDebug, 'EPI');
@@ -144,46 +140,6 @@ simulated function GatherData(XComGameState_Unit Unit, out array<SlotData> Slots
 	}
 	
 	`log("Finished preparing loadout items", EnableDataDebug, 'EPI');
-}
-
-simulated function GetSlotsToShow (XComGameState_Unit Unit, out array<EInventorySlot> SlotsToShow) 
-{
-	local array<CHItemSlot> ModSlots;
-	local CHItemSlot SlotTemplate;
-
-	SlotsToShow = class'CHItemSlot'.static.GetDefaultDisplayedSlots(Unit);
-	`log("Default displayed slots:" @ SlotsArrayToString(SlotsToShow), EnableDataDebug, 'EPI');
-
-	if (!SkipCustomModSlotsLogic)
-	{
-		`log("Gathering mod slots to show", EnableDataDebug, 'EPI');
-		ModSlots = class'CHItemSlot'.static.GetAllSlotTemplates();
-
-		foreach ModSlots(SlotTemplate) {
-			if (SlotTemplate.UnitShowSlot(Unit)) {
-				`log("Mod slot" @ SlotTemplate.InvSlot @ "is added to display", EnableDataDebug, 'EPI');
-				SlotsToShow.Add(SlotTemplate.InvSlot);
-			}
-		}
-
-		`log("Displayed slots after gathering mod slots:" @ SlotsArrayToString(SlotsToShow), EnableDataDebug, 'EPI');
-	}
-}
-
-static protected function string SlotsArrayToString(out array<EInventorySlot> Slots)
-{
-	local EInventorySlot Slot;
-	local string Result;
-	local int i;
-
-	foreach Slots(Slot, i)
-	{
-		Result $= Slot;
-
-		if (i + 1 < Slots.Length) Result $= ", ";
-	}
-
-	return Result;
 }
 
 simulated function SplitSlots (array<SlotData> AllSlots, out array<SlotData> FullRowSlots, out array<SlotData> SmallSlots)

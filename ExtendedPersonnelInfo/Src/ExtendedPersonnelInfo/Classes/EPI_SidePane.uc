@@ -2,7 +2,7 @@
 class EPI_SidePane extends UIPanel;
 
 // These are set inside
-var UIBGBox BGBox;
+var UIBladeBG BG;
 var UIPanel InfoContainer;
 
 // Config. Note that variables like "Width" are prepended with "Target" to prevent name conflicts with UIPanel::Width and such
@@ -14,9 +14,12 @@ simulated function InitSidePane (float TargetX, float TargetY, optional name Ini
 	InitPanel(InitName);
 	SetPosition(TargetX, TargetY);
 
-	BGBox = Spawn(class'UIBGBox', self);
-	BGBox.bAnimateOnInit = false;
-	BGBox.InitBG(name("BG"), 0, 0, TargetWidth, TargetHeight, eUIState_Normal);
+	BG = Spawn(class'UIBladeBG', self);
+	BG.bAnimateOnInit = false;
+	BG.InitPanel('BG');
+	BG.SetPosition(0, 0);
+	BG.SetSize(TargetWidth, TargetHeight);
+	BG.SetAlpha(80);
 }
 
 simulated function DisplayFor (XComGameState_Unit Unit)
@@ -32,11 +35,11 @@ simulated function DisplayFor (XComGameState_Unit Unit)
 	}
 
 	if (!ShouldShow) {
-		BGBox.Hide();
+		BG.Hide();
 		return;
 	}
 
-	BGBox.Show();
+	BG.Show();
 	InfoContainer = Spawn(class'UIPanel', self);
 	InfoContainer.bAnimateOnInit = false;
 	InfoContainer.InitPanel();
@@ -52,7 +55,7 @@ simulated function CreateContentFor (XComGameState_Unit Unit)
 defaultproperties
 {
 	TargetWidth = 300;
-	TargetHeight = 880; // Keep in sync with class'EPI_Utilities'.const.PersonnelHeight
+	TargetHeight = 870; // Keep in sync with class'EPI_Utilities'.const.PersonnelHeight - 10
 
 	bAnimateOnInit = false;
 }

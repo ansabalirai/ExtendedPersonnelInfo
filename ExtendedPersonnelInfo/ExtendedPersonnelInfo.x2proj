@@ -97,6 +97,9 @@
     <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemPadding.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\UIBladeBG.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\X2DownloadableContentInfo_ExtendedPersonnelInfo.uc" />
   </ItemGroup>
   <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />

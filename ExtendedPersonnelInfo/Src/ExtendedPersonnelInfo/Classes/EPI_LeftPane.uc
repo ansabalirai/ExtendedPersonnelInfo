@@ -3,8 +3,8 @@ class EPI_LeftPane extends EPI_SidePane;
 simulated function InitLeftPane()
 {
 	InitSidePane(
-		class'EPI_Utilities'.const.PersonnelX - TargetWidth - 10,
-		class'EPI_Utilities'.const.PersonnelY,
+		class'EPI_Utilities'.const.PersonnelX - TargetWidth,
+		class'EPI_Utilities'.const.PersonnelY + 10,
 		name("LeftPane")
 	);
 }

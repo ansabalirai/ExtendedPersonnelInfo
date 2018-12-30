@@ -3,10 +3,12 @@ class EPI_RightPane extends EPI_SidePane;
 simulated function InitRightPane()
 {
 	InitSidePane(
-		class'EPI_Utilities'.const.PersonnelX + class'EPI_Utilities'.const.PersonnelWidth + 10,
-		class'EPI_Utilities'.const.PersonnelY,
+		class'EPI_Utilities'.const.PersonnelX + class'EPI_Utilities'.const.PersonnelWidth,
+		class'EPI_Utilities'.const.PersonnelY + 10,
 		name("RightPane")
 	);
+
+	BG.SetRightMode();
 }
 
 simulated function CreateContentFor (XComGameState_Unit Unit)

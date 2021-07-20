@@ -1,106 +1,55 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Guid>b69f8865-a378-4f95-b907-ed49836fc68d</Guid>
+    <Guid>f33b7784-4302-4dcc-be6f-b441c018d973</Guid>
     <Name>Extended Personnel Info</Name>
-    <Description>Insipired by "Show Me The Personnel" this mod adds usefull info such as soldier bond details and skills to armory screen</Description>
+    <Description>Rebuild of ExtendedPersonnelInfo by Xymanek to add LW2 squad info</Description>
     <SteamPublishID>0</SteamPublishID>
     <AssemblyName>ExtendedPersonnelInfo</AssemblyName>
     <RootNamespace>ExtendedPersonnelInfo</RootNamespace>
   </PropertyGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
   <ItemGroup>
     <Folder Include="Config\" />
-    <Folder Include="Content\" />
     <Folder Include="Localization\" />
     <Folder Include="Src\" />
     <Folder Include="Src\ExtendedPersonnelInfo\" />
     <Folder Include="Src\ExtendedPersonnelInfo\Classes\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Config\XcomExtendedPersonnelInfo.ini">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Content\EPI_UILibrary.upk">
-      <SubType>Content</SubType>
-    </Content>
+    <Folder Include="Content\" />
+    <Folder Include="Script\" />
     <Content Include="ModPreview.jpg" />
     <Content Include="Config\XComEditor.ini" />
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_LeftPane.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Main.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_PersonnelListener.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_RightPane.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SectionHeader.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Bonds.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Headshot.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Item.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Slot.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Upgrade.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Stats.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Traits.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SidePane.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SubHeader.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities_BondCadidateSorting.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_Container.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_Item.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemBorder.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemPadding.uc">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="Src\ExtendedPersonnelInfo\Classes\UIBladeBG.uc">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Src\ExtendedPersonnelInfo\Classes\X2DownloadableContentInfo_ExtendedPersonnelInfo.uc" />
+    <Content Include="Config\XcomExtendedPersonnelInfo.ini" />
+    <Content Include="Content\EPI_UILibrary.upk" />
+    <Content Include="Script\ExtendedPersonnelInfo.u" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_LeftPane.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Main.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_PersonnelListener.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_RightPane.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SectionHeader.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Bonds.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Headshot.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Item.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Slot.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Loadout_Upgrade.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Skills.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Stats.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_Traits.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SidePane.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_SubHeader.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Utilities_BondCadidateSorting.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_Container.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_Item.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemBorder.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_VerticalLayout_ItemPadding.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\UIBladeBG.uc" />
+    <Content Include="Src\ExtendedPersonnelInfo\Classes\EPI_Section_SquadInfo.uc" />
   </ItemGroup>
-  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
 </Project>
